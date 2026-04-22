@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    environment:
+      PORT: "50070"
+      BASE_SOAP_SERVER: "http://212.19.9.201:50049"
+      JSON_SAVE_DIR: "/data/jsontoesat"
+      INVOICE_STORAGE_DIR: "/data/invoice_storage"
+      DISLOC_SOURCE_DIR: "/data/jsontoesatm"
+      LOG_DIR: "/data/logs"
+      STATE_DIR: "/data/state"
+      DB_HOST: "host.docker.internal"
+      DB_PORT: "5433"
+      DB_USER: "postgres"
+      DB_PASSWORD: "postgres"
+      DB_NAME: "postgres"
+    ports:
+      - "50070:50070"
+    volumes:
+      - app-data:/data
+
+volumes:
+  app-data:

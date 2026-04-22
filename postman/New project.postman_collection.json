@@ -1,0 +1,680 @@
+{
+  "info": {
+    "_postman_id": "4a8194a7-ea83-4384-a7b0-66c35d2b1f31",
+    "name": "New project API",
+    "description": "Postman collection grouped by actual runtime behavior: local endpoints that should work without the external SOAP server, and proxy endpoints that depend on the external SOAP server and may fail with EOF/502/504.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Works locally",
+      "item": [
+        {
+          "name": "Invoice local",
+          "item": [
+            {
+              "name": "Get last interval AT",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/invoice/last-interval-at"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "pm.test('Response is JSON object', function () {",
+                      "  var body = pm.response.json();",
+                      "  pm.expect(body).to.be.an('object');",
+                      "  pm.expect(body).to.have.property('lastInterval');",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get last interval NMTP",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/invoice/last-interval-nmtp"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "pm.test('Response is JSON object', function () {",
+                      "  var body = pm.response.json();",
+                      "  pm.expect(body).to.be.an('object');",
+                      "  pm.expect(body).to.have.property('lastInterval');",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Process invoices AT",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"data\": {\n    \"api_processed_intervals\": [\n      {\n        \"from\": \"2026-04-22 10:00:00\",\n        \"to\": \"2026-04-22 11:00:00\"\n      }\n    ]\n  }\n}"
+                },
+                "url": "{{baseUrl}}/soap/invoice/process-invoices-at"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "pm.test('Process result is success', function () {",
+                      "  var body = pm.response.json();",
+                      "  pm.expect(body.status).to.eql('success');",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Process invoices NMTP",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"data\": {\n    \"api_processed_intervals\": [\n      {\n        \"from\": \"2026-04-22 11:00:00\",\n        \"to\": \"2026-04-22 12:00:00\"\n      }\n    ]\n  }\n}"
+                },
+                "url": "{{baseUrl}}/soap/invoice/process-invoices-nmtp"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "pm.test('Process result is success', function () {",
+                      "  var body = pm.response.json();",
+                      "  pm.expect(body.status).to.eql('success');",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Run disloc check via /soap",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": "{{baseUrl}}/soap/invoice/disloc-check"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is 202', function () {",
+                      "  pm.response.to.have.status(202);",
+                      "});",
+                      "pm.test('Disloc check accepted', function () {",
+                      "  var body = pm.response.json();",
+                      "  pm.expect(body.status).to.eql('success');",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Run disloc check via /invoice",
+              "request": {
+                "method": "POST",
+                "header": [],
+                "url": "{{baseUrl}}/invoice/disloc-check"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is 202', function () {",
+                      "  pm.response.to.have.status(202);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Database-backed API",
+          "item": [
+            {
+              "name": "Get wagons",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/wagons"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "pm.test('Wagons response is array', function () {",
+                      "  var body = pm.response.json();",
+                      "  pm.expect(body).to.be.an('array');",
+                      "  pm.expect(body.length).to.be.greaterThan(0);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get filed wagons",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/wagons/filed"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "pm.test('All returned wagons are open', function () {",
+                      "  var body = pm.response.json();",
+                      "  pm.expect(body).to.be.an('array');",
+                      "  body.forEach(function (item) { pm.expect(item.cleaned_at).to.be.oneOf([null, undefined]); });",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get clean wagons",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/wagons/clean"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "pm.test('All returned wagons are cleaned', function () {",
+                      "  var body = pm.response.json();",
+                      "  pm.expect(body).to.be.an('array');",
+                      "  body.forEach(function (item) { pm.expect(item.cleaned_at).to.not.be.oneOf([null, undefined]); });",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Get wagon history",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/api/wagons/{{wagonHistoryNumber}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "pm.test('History belongs to requested wagon', function () {",
+                      "  var body = pm.response.json();",
+                      "  pm.expect(body).to.be.an('array');",
+                      "  body.forEach(function (item) { pm.expect(item.wagon_number).to.eql(pm.environment.get('wagonHistoryNumber')); });",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Logs and diagnostics",
+          "item": [
+            {
+              "name": "Get recent logs",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/logs?minutes=30"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is 200', function () {",
+                      "  pm.response.to.have.status(200);",
+                      "});",
+                      "pm.test('Logs response shape is correct', function () {",
+                      "  var body = pm.response.json();",
+                      "  pm.expect(body.status).to.eql('success');",
+                      "  pm.expect(body.logs).to.be.an('array');",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Depends on external SOAP",
+      "item": [
+        {
+          "name": "Invoice proxy",
+          "item": [
+            {
+              "name": "Invoice search",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"invoice_number\": \"{{invoiceNumber}}\"\n}"
+                },
+                "url": "{{baseUrl}}/soap/invoice/search"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});",
+                      "pm.test('Response is JSON-ish', function () {",
+                      "  pm.response.to.have.header('Content-Type');",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Invoice id search",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"invoice_id\": \"{{invoiceId}}\"\n}"
+                },
+                "url": "{{baseUrl}}/soap/invoice/idsearch"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Wagon proxy",
+          "item": [
+            {
+              "name": "Wagon search",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"wag_number\": \"{{wagonNumber}}\"\n}"
+                },
+                "url": "{{baseUrl}}/soap/wagon/search"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Wagon search list",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"wagons\": [\"51000001\", \"52000001\"]\n}"
+                },
+                "url": "{{baseUrl}}/soap/wagon/search/list"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Dislocation proxy",
+          "item": [
+            {
+              "name": "ATTIS dislocation",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/disloc/attis"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "NMTP dislocation",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/disloc/nmtp"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "UT EMD dislocation",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/disloc/ut_emd"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "GUT EMD dislocation",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/disloc/gut_emd"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "AT EMD dislocation",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/disloc/at_emd"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Filed cars AT",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/disloc/filed-cars-at"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Filed cars NMTP",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/disloc/filed-cars-nmtp"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "PPS status AT",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/disloc/pps-status-at"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "PPS status NMTP",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": "{{baseUrl}}/soap/disloc/pps-status-nmtp"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "pm.test('Status is acceptable for upstream smoke test', function () {",
+                      "  pm.expect([200, 502, 504]).to.include(pm.response.code);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:50070"
+    },
+    {
+      "key": "invoiceNumber",
+      "value": "1234567890"
+    },
+    {
+      "key": "invoiceId",
+      "value": "INV-123"
+    },
+    {
+      "key": "wagonNumber",
+      "value": "51000001"
+    },
+    {
+      "key": "wagonHistoryNumber",
+      "value": "51000004"
+    }
+  ]
+}
