@@ -1,8 +1,9 @@
-version: "3.9"
-
 services:
   app:
     build: .
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       PORT: "50070"
       BASE_SOAP_SERVER: "http://212.19.9.201:50049"
@@ -11,8 +12,8 @@ services:
       DISLOC_SOURCE_DIR: "/data/jsontoesatm"
       LOG_DIR: "/data/logs"
       STATE_DIR: "/data/state"
-      DB_HOST: "host.docker.internal"
-      DB_PORT: "5433"
+      DB_HOST: "db"
+      DB_PORT: "5432"
       DB_USER: "postgres"
       DB_PASSWORD: "postgres"
       DB_NAME: "postgres"
@@ -21,5 +22,23 @@ services:
     volumes:
       - app-data:/data
 
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: "postgres"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
 volumes:
   app-data:
+  postgres-data:

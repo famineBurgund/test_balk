@@ -9,10 +9,13 @@ import (
 	"time"
 
 	"dislocservice/internal/config"
-	"dislocservice/internal/disloccheck"
-	"dislocservice/internal/httpapi"
+	"dislocservice/internal/handler/httpapi"
 	"dislocservice/internal/logger"
 	"dislocservice/internal/postgres"
+	filerepo "dislocservice/internal/repository/files"
+	pgrepo "dislocservice/internal/repository/postgres"
+	"dislocservice/internal/service"
+	"dislocservice/internal/service/disloccheck"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -43,14 +46,17 @@ func New(cfg config.Config) (*Application, error) {
 	}
 
 	appLogger := logger.New(logFile)
-	dislocCheckService := disloccheck.NewService(cfg, appLogger)
+	filesRepository := filerepo.New(cfg)
+	postgresRepository := pgrepo.New(db)
+	appService := service.New(cfg, postgresRepository, filesRepository, &http.Client{Timeout: 5 * time.Minute}, appLogger)
+	dislocCheckService := disloccheck.NewService(filesRepository, appLogger)
 	if err := postgres.InitSchema(ctx, db); err != nil {
 		db.Close()
 		_ = logFile.Close()
 		return nil, err
 	}
 
-	handler := httpapi.NewHandler(cfg, db, &http.Client{Timeout: 5 * time.Minute}, appLogger, dislocCheckService)
+	handler := httpapi.NewHandler(appService, appLogger, dislocCheckService)
 	return &Application{
 		Config:  cfg,
 		DB:      db,
